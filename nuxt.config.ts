@@ -13,7 +13,12 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@primevue/nuxt-module",
     "@nuxtjs/tailwindcss",
+    "@pinia/nuxt",
+    "@pinia-plugin-persistedstate/nuxt",
   ],
+  pinia: {
+    storesDirs: ["./stores/**"],
+  },
   primevue: {
     components: {
       include: "*",
