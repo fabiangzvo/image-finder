@@ -60,4 +60,9 @@ export default defineNuxtConfig({
     preference: "light",
     fallback: "light",
   },
+  runtimeConfig: {
+    googleApiKey: process.env.GOOGLE_SEARCH_API_KEY ?? "",
+    googleApiUrl: process.env.GOOGLE_SEARCH_API_URL ?? "",
+    googleSearchEngineId: process.env.GOOGLE_SEARCH_ENGINE_ID ?? "",
+  },
 });

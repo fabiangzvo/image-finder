@@ -2,15 +2,17 @@
   <div
     class="min-h-screen p-8 transition-all duration-500 flex flex-col items-center justify-center">
     <div
-      :class="`max-w-4xl w-full mx-auto transition-transform duration-500 ease-in-out ${
-        isExpanded ? '-translate-y-[40vh]' : ''
-      }`">
+      :class="[
+        `max-w-4xl w-full mx-auto transition-transform duration-500 ease-in-out`,
+        isExpanded ? '-translate-y-[40vh]' : '',
+      ]">
       <div
-        :class="`relative flex justify-center text-center transition-all duration-500 mb-2 ${
+        :class="[
+          `relative flex justify-center text-center transition-all duration-500 mb-2`,
           isExpanded
             ? 'opacity-0 scale-95 -translate-y-8 h-0 overflow-hidden mb-0'
-            : 'opacity-100 scale-100 bottom-0'
-        }`">
+            : 'opacity-100 scale-100 bottom-0',
+        ]">
         <Image
           :src="$colorMode.value === 'dark' ? '/world-night.png' : '/world.png'"
           alt="Logo"
@@ -25,19 +27,19 @@
       <!-- Barra de búsqueda principal -->
       <div ref="searchRef" class="relative">
         <SearchInput
-          v-model="query"
+          v-model="store.query"
           @update:input="handleInputChange"
           @focus="popoverRef.toggle($event)"
           @keydown="handleKeyDown"
           @clear="clearSearch" />
-        <Popover ref="popoverRef" v-show="!isLoading && !query">
+        <Popover ref="popoverRef" v-show="!isLoading && !store.query">
           <HistoryList @change="handleInputChange" />
         </Popover>
-        <div v-if="!isLoading && query" class="py-2">
+        <div v-if="!isLoading && store.query" class="py-2">
           <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
             Resultados
           </div>
-          <ListResult />
+          <ListResult :items="results" />
         </div>
         <div
           v-if="isLoading"
@@ -63,31 +65,68 @@
 </template>
 
 <script setup lang="ts">
+import type { SearchResponse } from "#shared/types/google";
+import type { Seller, SearchState } from "#shared/types/search";
+
 import { useHistoryStore } from "../../stores/history";
 
 const store = useHistoryStore();
 
+const state = reactive<SearchState>({
+  isChecked: false,
+  isFinished: false,
+  isLoading: true,
+  results: [],
+  total: 0,
+  showSellerModal: false,
+  winner: {} as Seller,
+  remainingPoints: 20,
+});
+
+const {
+  isChecked,
+  isFinished,
+  isLoading,
+  results,
+  total,
+  showSellerModal,
+  winner,
+  remainingPoints,
+} = toRefs<SearchState>(state);
 const popoverRef = ref();
-const query = ref("");
-const isLoading = ref(false);
 const selectedIndex = ref<number>(-1);
 const searchRef = ref<HTMLDivElement | null>(null);
-let debounceTimer: number | undefined;
+let debounceTimer: any;
 const isExpanded = ref(false);
 
-function performSearch(searchTerm: string): void {
+async function performSearch(searchTerm: string): Promise<void> {
   if (!searchTerm) return;
-  popoverRef.value.hide();
+
   isLoading.value = true;
 
-  setTimeout(() => {
+  try {
+    popoverRef.value.hide();
+    const response = await $fetch<SearchResponse>("/api/search", {
+      params: {
+        q: store.query,
+        page: store.page,
+      },
+    });
+
+    if (response.error) throw response.error;
+
+    results.value = response.data;
+    total.value = response.total;
+
     store.pushHistory(searchTerm);
-    isLoading.value = false;
-  }, 300);
+  } catch (error) {
+    console.error("Error al buscar:", error);
+  }
+  isLoading.value = false;
 }
 
 const handleInputChange = (value: string) => {
-  query.value = value;
+  store.query = value;
   selectedIndex.value = -1;
 
   if (value.length === 0) {
@@ -106,10 +145,9 @@ const handleInputChange = (value: string) => {
 };
 
 function handleSelect(item: any): void {
-  console.log("Seleccionado:", item);
   if (!item) return;
 
-  query.value = item;
+  store.query = item;
   store.pushHistory(item);
 }
 
@@ -133,8 +171,8 @@ const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
       if (selectedIndex.value >= 0 && store.history[selectedIndex.value]) {
         handleSelect(store.history[selectedIndex.value]);
-      } else if (query.value) {
-        store.pushHistory(query.value);
+      } else if (store.query) {
+        store.pushHistory(store.query);
         popoverRef.value.hide();
       }
       break;
@@ -145,10 +183,17 @@ const handleKeyDown = (e: KeyboardEvent) => {
 };
 
 const clearSearch = () => {
-  query.value = "";
+  store.query = "";
   popoverRef.value.hide();
   isExpanded.value = false;
 };
+
+onMounted(async () => {
+  if (!store.query) return;
+
+  isExpanded.value = true;
+  await performSearch(store.query);
+});
 /**
  * <!-- Sin resultados -->
         <div v-if="!isLoading && query" class="p-8 text-center">

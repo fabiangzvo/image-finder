@@ -1,9 +1,21 @@
 import { defineStore } from "pinia";
 
+interface HistoryState {
+  history: string[];
+  query: string;
+  page: number;
+}
+
 export const useHistoryStore = defineStore(
   "history",
   () => {
-    const history = ref<string[]>([]);
+    const state = reactive<HistoryState>({
+      query: "",
+      history: [],
+      page: 0,
+    });
+
+    const { query, history, page } = toRefs<HistoryState>(state);
 
     function pushHistory(query: string): void {
       if (!query || history.value.includes(query)) return;
@@ -20,6 +32,8 @@ export const useHistoryStore = defineStore(
       pushHistory,
       removeHistoryItem,
       persist: true,
+      query,
+      page,
     };
   },
   {
