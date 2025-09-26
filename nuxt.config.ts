@@ -10,14 +10,21 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@nuxt/image",
     "@nuxt/test-utils",
-    "@pinia/nuxt",
     "@primevue/nuxt-module",
     "@nuxtjs/tailwindcss",
+    "@nuxtjs/color-mode",
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
   ],
   pinia: {
     storesDirs: ["./stores/**"],
+  },
+  piniaPersistedstate: {
+    storage: "localStorage",
+    debug: true,
+    cookieOptions: {
+      watch: true,
+    },
   },
   primevue: {
     components: {
@@ -26,7 +33,31 @@ export default defineNuxtConfig({
     options: {
       theme: {
         preset: Aura,
+        options: {
+          darkModeSelector: ".dark-mode",
+        },
       },
     },
+  },
+  image: {
+    domains: ["*"],
+  },
+  tailwindcss: {
+    config: {
+      darkMode: ["class", ".dark-mode"],
+      content: [
+        "./components/**/*.{vue,js,ts}",
+        "./layouts/**/*.vue",
+        "./pages/**/*.vue",
+        "./plugins/**/*.{js,ts}",
+        "./app.vue",
+        "./node_modules/primevue/**/*.{vue,js,ts}",
+      ],
+    },
+  },
+  colorMode: {
+    storage: "cookie",
+    preference: "light",
+    fallback: "light",
   },
 });
