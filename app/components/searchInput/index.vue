@@ -28,15 +28,9 @@
 </template>
 
 <script lang="ts" setup>
-interface SearchInputEmit {
-  (e: "update:input", value: string): void;
-  (e: "focus", value: FocusEvent): void;
-  (e: "keydown", value: KeyboardEvent): void;
-  (e: "clear"): void;
-}
+import type { SearchInputEmits } from "#shared/types/searchInput";
 
-const emit = defineEmits<SearchInputEmit>();
-
+const emit = defineEmits<SearchInputEmits>();
 const query = defineModel<string>();
 </script>
 

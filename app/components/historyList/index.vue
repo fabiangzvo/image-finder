@@ -15,13 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { useHistoryStore } from "../../stores/history";
+import type { HistoryListEmits } from "#shared/types/historyList";
 
-interface Emits {
-  (e: "change", value: string): void;
-}
-
-const emit = defineEmits<Emits>();
+const emit = defineEmits<HistoryListEmits>();
 
 const store = useHistoryStore();
 const selected = ref<string>("");

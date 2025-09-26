@@ -51,7 +51,7 @@ export default defineNuxtConfig({
         "./pages/**/*.vue",
         "./plugins/**/*.{js,ts}",
         "./app.vue",
-        "./node_modules/primevue/**/*.{vue,js,ts}",
+        "./node_modules/primevue/**/*.{vue,js,ts}", // 👈 importante
       ],
     },
   },
