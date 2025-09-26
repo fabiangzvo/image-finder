@@ -5,7 +5,7 @@
     </div>
     <Listbox
       paginator
-      class="w-full border-none"
+      class="w-full border-none bg-[var(--p-popover-background)] &>.p-popover-content:bg-red-500"
       emptyMessage="No hay historial de busqueda"
       :options="store.history"
       :rows="5"
