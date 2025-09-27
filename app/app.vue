@@ -3,6 +3,8 @@
     <ThemeButton />
     <NuxtRouteAnnouncer />
     <NuxtPage />
+    <ConfirmDialog></ConfirmDialog>
+    <Toast />
   </div>
 </template>
 <script setup lang="ts">

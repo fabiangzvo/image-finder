@@ -1,4 +1,4 @@
-import type { Seller } from "./search";
+import type { Seller } from "./seller";
 import type { SearchResult } from "./google";
 
 export interface ListItem extends SearchResult {

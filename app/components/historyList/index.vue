@@ -5,12 +5,13 @@
     </div>
     <Listbox
       paginator
-      class="w-full border-none bg-[var(--p-popover-background)] &>.p-popover-content:bg-red-500"
+      class="w-full border-none bg-[var(--p-popover-background)]"
       emptyMessage="No hay historial de busqueda"
       :options="store.history"
       :rows="5"
       v-model="selected"
-      @update:modelValue="emit('change', selected)" />
+      @update:modelValue="emit('change', selected)"
+    />
   </div>
 </template>
 

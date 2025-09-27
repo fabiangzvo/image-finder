@@ -4,7 +4,6 @@ interface HistoryState {
   history: string[];
   query: string;
   page: number;
-  sellers: Seller[];
 }
 
 export const useHistoryStore = defineStore(
@@ -14,10 +13,9 @@ export const useHistoryStore = defineStore(
       query: "",
       history: [],
       page: 0,
-      sellers: [],
     });
 
-    const { query, history, page, sellers } = toRefs<HistoryState>(state);
+    const { query, history, page } = toRefs<HistoryState>(state);
 
     function pushHistory(query: string): void {
       if (!query || history.value.includes(query)) return;
@@ -29,28 +27,6 @@ export const useHistoryStore = defineStore(
       history.value.splice(index, 1);
     }
 
-    function resetSellers(): void {
-      sellers.value = sellers.value.map((seller) => ({ ...seller, points: 0 }));
-    }
-
-    onMounted(async () => {
-      const response = await $fetch<SellerApiResponse>("/api/sellers");
-
-      if (!response.error) {
-        if (sellers.value.length > 0) {
-          const newSellers = response.data.filter(
-            (seller) => !sellers.value.some((s) => s.id === seller.id)
-          );
-
-          const base = sellers.value.length > 0 ? [] : sellers.value;
-
-          sellers.value.push(...base, ...newSellers);
-        } else {
-          sellers.value = response.data;
-        }
-      }
-    });
-
     return {
       history,
       pushHistory,
@@ -58,8 +34,6 @@ export const useHistoryStore = defineStore(
       persist: true,
       query,
       page,
-      sellers,
-      resetSellers,
     };
   },
   {

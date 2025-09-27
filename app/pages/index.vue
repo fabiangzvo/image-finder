@@ -28,13 +28,16 @@
         />
       </div>
       <!-- Barra de búsqueda principal -->
-      <SearchInput
-        v-model="store.query"
-        @update:input="handleInputChange"
-        @focus="popoverRef.toggle($event)"
-        @keydown="handleKeyDown"
-        @clear="clearSearch"
-      />
+      <div class="flex gap-4 w-full items-center">
+        <SearchInput
+          v-model="store.query"
+          @update:input="handleInputChange"
+          @focus="popoverRef.toggle($event)"
+          @keydown="handleKeyDown"
+          @clear="clearSearch"
+        />
+        <UsersCounter />
+      </div>
       <Popover ref="popoverRef" v-show="!isLoading && !store.query">
         <HistoryList @change="handleInputChange" />
       </Popover>
@@ -72,7 +75,12 @@
           Resultados
         </div>
         <ListResult
-          :items="results"
+          :items="
+            salesStore.sellers.map((user, index) => ({
+              ...results[index],
+              user,
+            })) as ListItem[]
+          "
           :isChecked="isChecked"
           :total="total"
           :isLoading="isLoading"
@@ -91,6 +99,7 @@ import type { Seller } from "#shared/types/seller";
 import { useHistoryStore } from "../../stores/history";
 
 const store = useHistoryStore();
+const salesStore = useSalesStore();
 
 const state = reactive<SearchState>({
   isChecked: false,
@@ -142,41 +151,43 @@ async function performSearch(searchTerm: string): Promise<void> {
 
   try {
     popoverRef.value.hide();
-    // const response = await $fetch<SearchResponse>("/api/search", {
-    //   params: {
-    //     q: store.query,
-    //     page: store.page,
-    //   },
-    // });
+    const response = await $fetch<SearchResponse>("/api/search", {
+      params: {
+        q: store.query,
+        page: store.page,
+      },
+    });
 
-    // if (response.error) throw response.error;
+    if (response.error) throw response.error;
 
-    results.value = Array.from({ length: store.sellers.length ?? 0 }).map(
-      (_, index) => ({
-        kind: "customsearch#result",
-        title: "CVC 75/25 21*21",
-        htmlTitle: "CVC 75/25",
-        link: "https://image.made-in-china.com/202f0j00vFularWsCkcL/CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.webp",
-        displayLink: "cbxy2020.en.made-in-china.com",
-        snippet: "CVC 75/25 21*21",
-        htmlSnippet: "CVC",
-        mime: "image/webp",
-        fileFormat: "image/webp",
-        image: {
-          contextLink:
-            "https://cbxy2020.en.made-in-china.com/product/nFbfjPXGAehW/China-CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.html",
-          height: 550,
-          width: 550,
-          byteSize: 52188,
-          thumbnailLink:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG4CThmBqbeWTy_A6D6PJ3QpCyp1_G68zM4dgw2bCuVXjPx31LeMHqEi4&s",
-          thumbnailHeight: 133,
-          thumbnailWidth: 133,
-        },
-        user: store.sellers[index],
-      })
-    ) as ListItem[];
-    // total.value = Number(response.total);
+    // results.value = Array.from({ length: salesStore.sellers.length ?? 0 }).map(
+    //   (_, index) => ({
+    //     kind: "customsearch#result",
+    //     title: "CVC 75/25 21*21",
+    //     htmlTitle: "CVC 75/25",
+    //     link: "https://image.made-in-china.com/202f0j00vFularWsCkcL/CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.webp",
+    //     displayLink: "cbxy2020.en.made-in-china.com",
+    //     snippet: "CVC 75/25 21*21",
+    //     htmlSnippet: "CVC",
+    //     mime: "image/webp",
+    //     fileFormat: "image/webp",
+    //     image: {
+    //       contextLink:
+    //         "https://cbxy2020.en.made-in-china.com/product/nFbfjPXGAehW/China-CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.html",
+    //       height: 550,
+    //       width: 550,
+    //       byteSize: 52188,
+    //       thumbnailLink:
+    //         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG4CThmBqbeWTy_A6D6PJ3QpCyp1_G68zM4dgw2bCuVXjPx31LeMHqEi4&s",
+    //       thumbnailHeight: 133,
+    //       thumbnailWidth: 133,
+    //     },
+    //     user: salesStore.sellers[index],
+    //   })
+    // ) as ListItem[];
+
+    results.value = response.data;
+    total.value = Number(response.total);
 
     store.pushHistory(searchTerm);
   } catch (error) {
