@@ -1,0 +1,10 @@
+{
+  "editor.formatOnSave": true,
+  "eslint.format.enable": true,
+  "typescript.format.enable": true,
+  "notebook.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+}

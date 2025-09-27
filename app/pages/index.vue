@@ -3,12 +3,12 @@
     class="min-h-screen p-8 transition-all duration-500 flex flex-col items-center justify-center">
     <div
       :class="[
-        `max-w-4xl w-full mx-auto transition-transform duration-500 ease-in-out`,
-        isExpanded ? '-translate-y-[40vh]' : '',
+        `max-w-4xl w-full mx-auto transition-transform duration-500 ease-in-out relative`,
+        
       ]">
       <div
         :class="[
-          `relative flex justify-center text-center transition-all duration-500 mb-2`,
+          `relative flex justify-center text-center transition-all duration-400 mb-2`,
           isExpanded
             ? 'opacity-0 scale-95 -translate-y-8 h-0 overflow-hidden mb-0'
             : 'opacity-100 scale-100 bottom-0',
@@ -25,47 +25,58 @@
           class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white to-transparent dark:from-black" />
       </div>
       <!-- Barra de búsqueda principal -->
-      <div ref="searchRef" class="relative">
-        <SearchInput
-          v-model="store.query"
-          @update:input="handleInputChange"
-          @focus="popoverRef.toggle($event)"
-          @keydown="handleKeyDown"
-          @clear="clearSearch" />
-        <Popover ref="popoverRef" v-show="!isLoading && !store.query">
-          <HistoryList @change="handleInputChange" />
-        </Popover>
-        <div v-if="!isLoading && store.query" class="py-2">
-          <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
-            Resultados
-          </div>
-          <ListResult :items="results" />
-        </div>
-        <div
-          v-if="isLoading"
-          class="p-8 flex flex-col items-center justify-center text-gray-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-loader-2 w-8 h-8 animate-spin mb-2">
-            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-          </svg>
-          <span class="text-sm">Buscando...</span>
-        </div>
+      <SearchInput
+        v-model="store.query"
+        @update:input="handleInputChange"
+        @focus="popoverRef.toggle($event)"
+        @keydown="handleKeyDown"
+        @clear="clearSearch" />
+      <Popover ref="popoverRef" v-show="!isLoading && !store.query">
+        <HistoryList @change="handleInputChange" />
+      </Popover>
+      <div
+        v-if="isLoading"
+        class="p-8 flex flex-col items-center justify-center text-gray-500">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-loader-2 w-8 h-8 animate-spin mb-2">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+        <span class="text-sm">Buscando...</span>
       </div>
     </div>
+    <transition
+      enter-active-class="transition-all delay-550 duration-500 ease-in-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all delay-0 duration-500 ease-in-out"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0 hidden">
+      <div v-show="!isLoading && store.query" class="py-2 relative">
+        <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
+          Resultados
+        </div>
+        <ListResult
+          :items="results"
+          :isChecked="isChecked"
+          :total="total"
+          :isLoading="isLoading"
+          @handlePagination="({ page }) => (store.page = page)" />
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { SearchResponse } from "#shared/types/google";
+//import type { SearchResponse } from "#shared/types/google";
 import type { Seller, SearchState } from "#shared/types/search";
 
 import { useHistoryStore } from "../../stores/history";
@@ -99,24 +110,66 @@ const searchRef = ref<HTMLDivElement | null>(null);
 let debounceTimer: any;
 const isExpanded = ref(false);
 
+// function handleClick(seller: Seller): void {
+//   const index = sellers.value.findIndex(
+//     (currentSeller) => currentSeller.id === seller.id
+//   );
+
+//   if (!sellers.value[index].points) {
+//     sellers.value[index].points = 3;
+//   } else {
+//     sellers.value[index].points += 3;
+//   }
+
+//   if (sellers.value[index]?.points >= 20) isFinished.value = true;
+
+//   isChecked.value = true;
+// }
+
 async function performSearch(searchTerm: string): Promise<void> {
-  if (!searchTerm) return;
+  if (!searchTerm || searchTerm.length < 3) return;
 
   isLoading.value = true;
 
   try {
     popoverRef.value.hide();
-    const response = await $fetch<SearchResponse>("/api/search", {
-      params: {
-        q: store.query,
-        page: store.page,
+    // const response = await $fetch<SearchResponse>("/api/search", {
+    //   params: {
+    //     q: store.query,
+    //     page: store.page,
+    //   },
+    // });
+
+    // if (response.error) throw response.error;
+
+    results.value = Array.from({ length: 10 }).map(() => ({
+      kind: "customsearch#result",
+      title: "CVC 75/25 21*21",
+      htmlTitle: "CVC 75/25",
+      link: "https://image.made-in-china.com/202f0j00vFularWsCkcL/CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.webp",
+      displayLink: "cbxy2020.en.made-in-china.com",
+      snippet: "CVC 75/25 21*21",
+      htmlSnippet: "CVC",
+      mime: "image/webp",
+      fileFormat: "image/webp",
+      image: {
+        contextLink:
+          "https://cbxy2020.en.made-in-china.com/product/nFbfjPXGAehW/China-CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.html",
+        height: 550,
+        width: 550,
+        byteSize: 52188,
+        thumbnailLink:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG4CThmBqbeWTy_A6D6PJ3QpCyp1_G68zM4dgw2bCuVXjPx31LeMHqEi4&s",
+        thumbnailHeight: 133,
+        thumbnailWidth: 133,
       },
-    });
-
-    if (response.error) throw response.error;
-
-    results.value = response.data;
-    total.value = response.total;
+      user: {
+        id: Math.ceil(Math.random() * 100).toString(),
+        name: "pepe cadena " + Math.ceil(Math.random() * 100).toString(),
+        observations: "Developer" + Math.ceil(Math.random() * 100).toString(),
+      },
+    })) as ListItem[];
+    // total.value = Number(response.total);
 
     store.pushHistory(searchTerm);
   } catch (error) {

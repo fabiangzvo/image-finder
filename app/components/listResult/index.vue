@@ -1,63 +1,62 @@
 <template>
-  <div class="card">
-    <Carousel
-      :value="products"
-      :numVisible="3"
-      :numScroll="1"
-      :responsiveOptions="responsiveOptions"
-      pt:content:class="p-0 m-0"
-      pt:body:class="!p-0 "
-      pt:root:class="p-0 m-0">
-      <template #item="slotProps">
-        <Card
-          class="hover:scale-125 cursor-pointer transition-all duration-300"
-          :pt="{
-            body: { class: 'bg-gray-500 !p-0' },
-          }">
-          <template #content>
-            <div class="relative mx-auto p-0 m-0">
-              <NuxtImg
-                :src="slotProps.data.img"
-                :alt="slotProps.data.tag"
-                class="w-full rounded h-full"
-                preview />
-              <div
-                class="p-3 h-auto flex w-full items-center overflow-hidden color-inherit subpixel-antialiased rounded-b-large backdrop-blur backdrop-saturate-150 absolute bg-red-500/80 bottom-0 border-t-1 border-zinc-100/50 z-10 justify-between">
-                <div>
-                  <p class="text-black text-tiny">Available soon.</p>
-                  <p class="text-black text-tiny">Get notified.</p>
-                </div>
-                <button
-                  type="button"
-                  tabindex="0"
-                  data-react-aria-pressable="true"
-                  class="z-0 group relative inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent transform-gpu data-[pressed=true]:scale-[0.97] cursor-pointer outline-solid outline-transparent data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 px-3 min-w-16 h-8 gap-2 rounded-full [&amp;&gt;svg]:max-w-[theme(spacing.8)] transition-transform-colors-opacity motion-reduce:transition-none bg-primary text-primary-foreground data-[hover=true]:opacity-hover text-tiny">
-                  Notify Me
-                </button>
-              </div>
+  <Carousel
+    :value="items"
+    :numVisible="5"
+    :numScroll="5"
+    :responsiveOptions="responsiveOptions"
+    :prevButtonProps="{
+      class: 'absolute top-1/2 left-2 rounded-full z-50 disabled:hidden',
+    }"
+    :nextButtonProps="{
+      class: 'absolute top-1/2 right-2 rounded-full z-50 disabled:hidden',
+    }"
+    pt:content:class="p-0 m-0 rounded-lg"
+    pt:body:class="!p-0 "
+    pt:root:class="p-0 m-0">
+    <template #item="slotProps">
+      <Card
+        class="cursor-pointer transition-all duration-300 relative m-4 rounded-xl overflow-hidden shadow-lg"
+        pt:body:class="!p-0"
+        pt:footer:class="hidden">
+        <template #content>
+          <Image
+            pt:image:class="min-h-[400px] object-cover object-center hover:scale-105"
+            :src="slotProps.data.link"
+            :alt="slotProps.data.title"
+            class="w-full relative"
+            preview />
+          <div
+            class="absolute bottom-0 p-2 w-full dark:bg-black/50 bg-white/60 backdrop-blur-sm h-20 flex flex-col cursor-default">
+            <div class="flex flex-col">
+              <span class="text-lg font-semibold">
+                {{ slotProps.data.user?.name || "Usuario Anonimo" }}
+              </span>
+              <p class="text-md">
+                {{ slotProps.data.user?.observations || "Descripción" }}
+              </p>
             </div>
-          </template>
-        </Card>
-      </template>
-    </Carousel>
-  </div>
+            <Button
+              size="large"
+              icon="pi pi-heart"
+              class="absolute right-2 -translate-y-1/2"
+              rounded />
+          </div>
+        </template>
+      </Card>
+    </template>
+  </Carousel>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import type { ListResultProps } from "#shared/types/listResult";
 
-const products = ref([
-  { id: 1, img: "/image.jpg", tag: "T-shirt" },
-  { id: 2, img: "/image.jpg", tag: "Pants" },
-  { id: 3, img: "/image.jpg", tag: "Shirt" },
-  { id: 4, img: "/image.jpg", tag: "Shirt" },
-  { id: 5, img: "/image.jpg", tag: "shoes" },
-]);
+const props = defineProps<ListResultProps>();
+const emit = defineEmits(["handleClick", "handlePagination"]);
 
 const responsiveOptions = ref([
   {
-    breakpoint: "1400px",
-    numVisible: 2,
+    breakpoint: "@media (width >= 96rem)",
+    numVisible: 5,
     numScroll: 1,
   },
   {
@@ -77,3 +76,8 @@ const responsiveOptions = ref([
   },
 ]);
 </script>
+<style>
+.p-items-hidden .p-carousel-item {
+  visibility: visible;
+}
+</style>

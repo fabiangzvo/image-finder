@@ -24,5 +24,5 @@ export interface Image {
 export interface SearchResponse {
   error?: string;
   data: SearchResult[];
-  total: number;
+  total: string;
 }
