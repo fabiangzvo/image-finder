@@ -1,28 +1,31 @@
 <template>
   <div
-    class="min-h-screen p-8 transition-all duration-500 flex flex-col items-center justify-center">
+    class="min-h-screen p-8 transition-all duration-500 flex flex-col items-center justify-center"
+  >
     <div
-      :class="[
-        `max-w-4xl w-full mx-auto transition-transform duration-500 ease-in-out relative`,
-        
-      ]">
+      class="max-w-4xl w-full mx-auto transition-transform duration-500 ease-in-out relative"
+    >
       <div
         :class="[
-          `relative flex justify-center text-center transition-all duration-400 mb-2`,
+          'relative flex justify-center text-center transition-all duration-400 mb-2',
           isExpanded
             ? 'opacity-0 scale-95 -translate-y-8 h-0 overflow-hidden mb-0'
             : 'opacity-100 scale-100 bottom-0',
-        ]">
+        ]"
+      >
         <Image
           :src="$colorMode.value === 'dark' ? '/world-night.png' : '/world.png'"
           alt="Logo"
-          fill />
+          fill
+        />
         <h1
-          class="text-5xl font-bold z-50 text-shadow-lg/30 dark:text-shadow-black text-shadow-white absolute bottom-0">
+          class="text-5xl font-bold z-50 text-shadow-lg/30 dark:text-shadow-black text-shadow-white absolute bottom-0"
+        >
           Imagenes del mundo
         </h1>
         <div
-          class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white to-transparent dark:from-black" />
+          class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white to-transparent dark:from-black"
+        />
       </div>
       <!-- Barra de búsqueda principal -->
       <SearchInput
@@ -30,13 +33,15 @@
         @update:input="handleInputChange"
         @focus="popoverRef.toggle($event)"
         @keydown="handleKeyDown"
-        @clear="clearSearch" />
+        @clear="clearSearch"
+      />
       <Popover ref="popoverRef" v-show="!isLoading && !store.query">
         <HistoryList @change="handleInputChange" />
       </Popover>
       <div
         v-if="isLoading"
-        class="p-8 flex flex-col items-center justify-center text-gray-500">
+        class="p-8 flex flex-col items-center justify-center text-gray-500"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -47,7 +52,8 @@
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="lucide lucide-loader-2 w-8 h-8 animate-spin mb-2">
+          class="lucide lucide-loader-2 w-8 h-8 animate-spin mb-2"
+        >
           <path d="M21 12a9 9 0 1 1-6.219-8.56" />
         </svg>
         <span class="text-sm">Buscando...</span>
@@ -59,7 +65,8 @@
       enter-to-class="opacity-100"
       leave-active-class="transition-all delay-0 duration-500 ease-in-out"
       leave-from-class="opacity-100"
-      leave-to-class="opacity-0 hidden">
+      leave-to-class="opacity-0 hidden"
+    >
       <div v-show="!isLoading && store.query" class="py-2 relative">
         <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
           Resultados
@@ -69,7 +76,8 @@
           :isChecked="isChecked"
           :total="total"
           :isLoading="isLoading"
-          @handlePagination="({ page }) => (store.page = page)" />
+          @handlePagination="({ page }) => (store.page = page)"
+        />
       </div>
     </transition>
   </div>
@@ -77,7 +85,8 @@
 
 <script setup lang="ts">
 //import type { SearchResponse } from "#shared/types/google";
-import type { Seller, SearchState } from "#shared/types/search";
+import type { SearchState } from "#shared/types/search";
+import type { Seller } from "#shared/types/seller";
 
 import { useHistoryStore } from "../../stores/history";
 
@@ -142,33 +151,31 @@ async function performSearch(searchTerm: string): Promise<void> {
 
     // if (response.error) throw response.error;
 
-    results.value = Array.from({ length: 10 }).map(() => ({
-      kind: "customsearch#result",
-      title: "CVC 75/25 21*21",
-      htmlTitle: "CVC 75/25",
-      link: "https://image.made-in-china.com/202f0j00vFularWsCkcL/CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.webp",
-      displayLink: "cbxy2020.en.made-in-china.com",
-      snippet: "CVC 75/25 21*21",
-      htmlSnippet: "CVC",
-      mime: "image/webp",
-      fileFormat: "image/webp",
-      image: {
-        contextLink:
-          "https://cbxy2020.en.made-in-china.com/product/nFbfjPXGAehW/China-CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.html",
-        height: 550,
-        width: 550,
-        byteSize: 52188,
-        thumbnailLink:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG4CThmBqbeWTy_A6D6PJ3QpCyp1_G68zM4dgw2bCuVXjPx31LeMHqEi4&s",
-        thumbnailHeight: 133,
-        thumbnailWidth: 133,
-      },
-      user: {
-        id: Math.ceil(Math.random() * 100).toString(),
-        name: "pepe cadena " + Math.ceil(Math.random() * 100).toString(),
-        observations: "Developer" + Math.ceil(Math.random() * 100).toString(),
-      },
-    })) as ListItem[];
+    results.value = Array.from({ length: store.sellers.length ?? 0 }).map(
+      (_, index) => ({
+        kind: "customsearch#result",
+        title: "CVC 75/25 21*21",
+        htmlTitle: "CVC 75/25",
+        link: "https://image.made-in-china.com/202f0j00vFularWsCkcL/CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.webp",
+        displayLink: "cbxy2020.en.made-in-china.com",
+        snippet: "CVC 75/25 21*21",
+        htmlSnippet: "CVC",
+        mime: "image/webp",
+        fileFormat: "image/webp",
+        image: {
+          contextLink:
+            "https://cbxy2020.en.made-in-china.com/product/nFbfjPXGAehW/China-CVC-75-25-21-21-57-58-230GSM-Proban-Treatment-Water-Repellent-Fabric-Used-in-Security-Coats-Jacket-Pants-Trousers-for-Industry.html",
+          height: 550,
+          width: 550,
+          byteSize: 52188,
+          thumbnailLink:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG4CThmBqbeWTy_A6D6PJ3QpCyp1_G68zM4dgw2bCuVXjPx31LeMHqEi4&s",
+          thumbnailHeight: 133,
+          thumbnailWidth: 133,
+        },
+        user: store.sellers[index],
+      })
+    ) as ListItem[];
     // total.value = Number(response.total);
 
     store.pushHistory(searchTerm);

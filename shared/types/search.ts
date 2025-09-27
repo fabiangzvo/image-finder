@@ -1,4 +1,5 @@
 import type { SearchResult } from "./google";
+import type { Seller } from "./seller";
 
 export interface SellerApiResponse {
   error?: any;
@@ -16,11 +17,3 @@ export interface SearchState {
   remainingPoints: number;
 }
 
-export interface Seller {
-  id: string;
-  name: string;
-  identification: string;
-  observations: string;
-  status: string;
-  points: number;
-}

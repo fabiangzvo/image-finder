@@ -64,5 +64,7 @@ export default defineNuxtConfig({
     googleApiKey: process.env.GOOGLE_SEARCH_API_KEY ?? "",
     googleApiUrl: process.env.GOOGLE_SEARCH_API_URL ?? "",
     googleSearchEngineId: process.env.GOOGLE_SEARCH_ENGINE_ID ?? "",
+    alegraToken: process.env.ALEGRA_TOKEN ?? "",
+    alegraApiUrl: process.env.ALEGRA_API_URL ?? "",
   },
 });
